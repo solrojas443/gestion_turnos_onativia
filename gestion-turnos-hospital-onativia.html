@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Turnos - Hospital Dr. Arturo Oñativia</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #005b96;
+            --dark-blue: #003b66;
+            --light-blue: #e6f2fa;
+            --accent-teal: #00897b;
+            --whatsapp-green: #25d366;
+            --whatsapp-dark: #128c7e;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --bg-body: #f8fafc;
+            --white: #ffffff;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 2px 8px rgba(0, 59, 102, 0.06);
+            --shadow-md: 0 8px 24px rgba(0, 59, 102, 0.12);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--dark-blue) 0%, var(--primary-blue) 100%);
+            color: var(--white);
+            padding: 2.5rem 1.5rem 3.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::after {
+            content: "";
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: var(--bg-body);
+            border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+        }
+
+        .hospital-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .hospital-badge span.cross {
+            background: var(--white);
+            color: var(--primary-blue);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1rem;
+        }
+
+        header h1 {
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        header p {
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        /* Main Container */
+        main {
+            max-width: 1100px;
+            width: 100%;
+            margin: -1rem auto 3rem;
+            padding: 0 1.25rem;
+            flex: 1;
+            position: relative;
+            z-index: 2;
+        }
+
+        .guide-intro {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* 6 Buttons Grid */
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .turno-btn {
+            background: var(--primary-blue);
+            color: var(--white);
+            border: 2px solid transparent;
+            border-radius: var(--radius-md);
+            padding: 1.25rem 1.4rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+        }
+
+        .turno-btn:hover {
+            background: var(--dark-blue);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .turno-btn.active {
+            background: var(--white);
+            color: var(--dark-blue);
+            border-color: var(--primary-blue);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .btn-left {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+        }
+
+        .btn-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.16);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.25rem;
+            transition: background 0.25s;
+        }
+
+        .turno-btn.active .btn-icon {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+        }
+
+        .btn-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .btn-subtitle {
+            font-size: 0.8rem;
+            opacity: 0.85;
+            margin-top: 0.2rem;
+            font-weight: 500;
+        }
+
+        .btn-chevron {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .turno-btn.active .btn-chevron {
+            transform: rotate(180deg);
+            color: var(--primary-blue);
+        }
+
+        /* Display Panel */
+        .info-panel {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+            padding: 2rem;
+            display: none;
+            animation: fadeIn 0.35s ease;
+        }
+
+        .info-panel.visible {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .panel-header {
+            border-bottom: 2px solid var(--light-blue);
+            padding-bottom: 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .panel-header h2 {
+            color: var(--dark-blue);
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .badge-destinatario {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+            padding: 0.45rem 0.9rem;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 700;
+        }
+
+        .highlight-box {
+            background: #f0f9ff;
+            border-left: 4px solid var(--primary-blue);
+            padding: 1.1rem 1.3rem;
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .highlight-box p {
+            margin-bottom: 0.35rem;
+            font-size: 0.98rem;
+        }
+
+        .highlight-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .contact-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: var(--whatsapp-green);
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+            padding: 0.75rem 1.3rem;
+            border-radius: 50px;
+            margin-top: 0.75rem;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .contact-cta:hover {
+            background: var(--whatsapp-dark);
+            transform: translateY(-1px);
+        }
+
+        .contact-cta.phone {
+            background: var(--primary-blue);
+            box-shadow: 0 4px 12px rgba(0, 91, 150, 0.25);
+        }
+
+        .contact-cta.phone:hover {
+            background: var(--dark-blue);
+        }
+
+        .section-label {
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--primary-blue);
+            margin: 1.5rem 0 0.85rem;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 0.75rem;
+            list-style: none;
+        }
+
+        .items-grid li {
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.93rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: var(--text-dark);
+        }
+
+        .items-grid li::before {
+            content: "•";
+            color: var(--primary-blue);
+            font-size: 1.4rem;
+            line-height: 1;
+        }
+
+        .note-box {
+            margin-top: 1.5rem;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            color: #92400e;
+            font-size: 0.93rem;
+        }
+
+        .note-box strong {
+            color: #78350f;
+        }
+
+        /* Important Banner (Always visible or highlighted) */
+        .important-card {
+            margin-top: 2.5rem;
+            background: linear-gradient(to right, #fff5f5, #ffffff);
+            border: 1px solid #fecaca;
+            border-left: 5px solid #dc2626;
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .important-card h3 {
+            color: #b91c1c;
+            font-size: 1.1rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .important-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 0.85rem;
+            list-style: none;
+        }
+
+        .important-list li {
+            background: var(--white);
+            border: 1px solid #fee2e2;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.92rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .check-badge {
+            background: #fee2e2;
+            color: #dc2626;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark-blue);
+            color: rgba(255, 255, 255, 0.85);
+            padding: 2rem 1.5rem;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .footer-brand h4 {
+            color: var(--white);
+            font-size: 1.15rem;
+            font-weight: 800;
+            margin-bottom: 0.25rem;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.25rem;
+            font-size: 0.9rem;
+        }
+
+        .footer-links a {
+            color: var(--white);
+            text-decoration: none;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 640px) {
+            .info-panel {
+                padding: 1.4rem;
+            }
+            .buttons-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="hospital-badge">
+            <span class="cross">+</span> Hospital Dr. Arturo Oñativia
+        </div>
+        <h1>Guía de Gestión de Turnos</h1>
+        <p>Seleccioná una de las 6 modalidades disponibles para conocer los requisitos, especialidades y canales de atención.</p>
+    </header>
+
+    <main>
+        <p class="guide-intro">Tocá cada botón para desplegar la información correspondiente:</p>
+
+        <!-- 6 Botones correspondientes a los recuadros azules -->
+        <div class="buttons-grid" role="tablist" aria-label="Modalidades de gestión de turnos">
+            
+            <button class="turno-btn active" onclick="mostrarInfo('turnos-148', this)" role="tab" aria-selected="true">
+                <div class="btn-left">
+                    <div class="btn-icon">📞</div>
+                    <div>
+                        <div class="btn-title">Turnos 148</div>
+                        <div class="btn-subtitle">Atención telefónica Salta Capital</div>
+                    </div>
+                </div>
+                <svg class="btn-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+
+            <button class="turno-btn" onclick="mostrarInfo('whatsapp-hospital', this)" role="tab" aria-selected="false">
+                <div class="btn-left">
+                    <div class="btn-icon">💬</div>
+                    <div>
+                        <div class="btn-title">Turnos por Whatsapp</div>
+                        <div class="btn-subtitle">Pacientes del hospital / derivación</div>
+                    </div>
+                </div>
+                <svg class="btn-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+
+            <button class="turno-btn" onclick="mostrarInfo('diabetes-primera', this)" role="tab" aria-selected="false">
+                <div class="btn-left">
+                    <div class="btn-icon">🩺</div>
+                    <div>
+                        <div class="btn-title">Turnos Diabetes por primera vez</div>
+                        <div class="btn-subtitle">Centros de Salud habilitados</div>
+                    </div>
+                </div>
+                <svg class="btn-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+
+            <button class="turno-btn" onclick="mostrarInfo('endocrinologia-primera', this)" role="tab" aria-selected="false">
+                <div class="btn-left">
+                    <div class="btn-icon">🏥</div>
+                    <div>
+                        <div class="btn-title">Turnos Endocrinología por primera vez</div>
+                        <div class="btn-subtitle">WhatsApp y Centros de Salud</div>
+                    </div>
+                </div>
+                <svg class="btn-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+
+            <button class="turno-btn" onclick="mostrarInfo('whatsapp-interior', this)" role="tab" aria-selected="false">
+                <div class="btn-left">
+                    <div class="btn-icon">🗺️</div>
+                    <div>
+                        <div class="btn-title">Turnos por Whatsapp Para pacientes del Interior</div>
+                        <div class="btn-subtitle">Interior de Salta, otras provincias y países</div>
+                    </div>
+                </div>
+                <svg class="btn-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+
+            <button class="turno-btn" onclick="mostrarInfo('requisitos-importantes', this)" role="tab" aria-selected="false">
+                <div class="btn-left">
+                    <div class="btn-icon">📋</div>
+                    <div>
+                        <div class="btn-title">IMPORTANTE</div>
+                        <div class="btn-subtitle">Documentación requerida para gestionar</div>
+                    </div>
+                </div>
+                <svg class="btn-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+
+        </div>
+
+        <!-- Panel Dinámico de Contenido -->
+        <div id="panel-contenedor" class="info-panel visible" role="region" aria-live="polite">
+            <!-- El contenido se inyecta dinámicamente mediante JavaScript -->
+        </div>
+
+        <!-- Recordatorio permanente de documentación -->
+        <section class="important-card" aria-label="Documentación obligatoria">
+            <h3>⚠️ Recordatorio Importante para cualquier gestión</h3>
+            <ul class="important-list">
+                <li><span class="check-badge">1</span> Enviar foto D.N.I. (ambos lados)</li>
+                <li><span class="check-badge">2</span> Foto carnet obra social (en caso de poseer)</li>
+                <li><span class="check-badge">3</span> Foto de pedido médico</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h4>HOSPITAL DR. ARTURO OÑATIVIA</h4>
+                <p>Calle Paz Chaín N° 30 — Salta Capital</p>
+            </div>
+            <div class="footer-links">
+                <a href="https://www.hospitalonativia.gob.ar" target="_blank" rel="noopener">🌐 www.hospitalonativia.gob.ar</a>
+                <a href="https://www.facebook.com/hospital.onativia.salta/" target="_blank" rel="noopener">📘 /hospital.onativia.salta/</a>
+                <a href="https://www.instagram.com/hosp.onativia_salta" target="_blank" rel="noopener">📸 @hosp.onativia_salta</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const datosTurnos = {
+            'turnos-148': {
+                titulo: 'Turnos 148',
+                destinatario: 'Pacientes que residen en Salta Capital',
+                destacado: `
+                    <p><strong>Canal de atención:</strong> Línea telefónica gratuita <strong>148</strong></p>
+                    <p><strong>Horario de atención:</strong> Lunes a viernes, de 6:00 a 20:00 hs.</p>
+                    <a href="tel:148" class="contact-cta phone">📞 Llamar al 148</a>
+                `,
+                subtituloLista: 'Especialidades habilitadas por este medio:',
+                items: [
+                    'Diabetes',
+                    'Endocrinología',
+                    'Nutrición',
+                    'Obesidad',
+                    'Hepatología',
+                    'Patología Mamaria'
+                ],
+                aclaracion: '<strong>Aclaración:</strong> Obesidad, Hepatología y Patología Mamaria también se otorgan para pacientes de primera vez.'
+            },
+            'whatsapp-hospital': {
+                titulo: 'Turnos por Whatsapp',
+                destinatario: 'Solo para pacientes del hospital y/o con derivación interna',
+                destacado: `
+                    <p><strong>Número de WhatsApp:</strong> <strong>387-4401874</strong></p>
+                    <p><strong>Aclaración:</strong> Solo para pacientes del hospital y/o con derivación interna.</p>
+                    <a href="https://wa.me/5493874401874" target="_blank" rel="noopener" class="contact-cta">💬 Enviar WhatsApp al 387-4401874</a>
+                `,
+                subtituloLista: 'Especialidades disponibles:',
+                items: [
+                    'Cardiología',
+                    'Oftalmología',
+                    'Cirugía General',
+                    'Psicología',
+                    'Diagnóstico por Imágenes',
+                    'Psiquiatría',
+                    'Fonoaudiología',
+                    'Podología',
+                    'Ginecología',
+                    'Nefrología',
+                    'Infectología',
+                    'Traumatología',
+                    'Odontología',
+                    'Urología'
+                ],
+                aclaracion: '<strong>Requisito:</strong> Para turnos de primera vez en estas especialidades se requiere derivación.'
+            },
+            'diabetes-primera': {
+                titulo: 'Turnos Diabetes por primera vez',
+                destinatario: 'Pacientes que consultan por primera vez en Diabetes',
+                destacado: `
+                    <p><strong>Modalidad de asignación:</strong> Los turnos se otorgan directamente en los Centros de Salud detallados abajo.</p>
+                    <p><strong>Georreferenciación:</strong> Se georreferencia al paciente al Centro de Salud más cercano a su domicilio.</p>
+                `,
+                subtituloLista: 'Centros de Salud habilitados:',
+                items: [
+                    'C.S. San Remo N° 17',
+                    'C.S. Roberto Nazr N° 63',
+                    'C.S. El Manjón N° 6',
+                    'C.S. Solidaridad N° 61',
+                    'C.S. Castañares N° 15',
+                    'C.S. 20 de Febrero N° 10'
+                ],
+                aclaracion: '<strong>Importante:</strong> Para turnos de primera vez se requiere contar con derivación médica.'
+            },
+            'endocrinologia-primera': {
+                titulo: 'Turnos Endocrinología por primera vez',
+                destinatario: 'Pacientes que consultan por primera vez en Endocrinología',
+                destacado: `
+                    <p><strong>Opción 1 — WhatsApp:</strong> Podrá gestionar su turno al número <strong>387-5191524</strong></p>
+                    <p><strong>Opción 2 — Presencial:</strong> En los Centros de Salud que se detallan a continuación.</p>
+                    <a href="https://wa.me/5493875191524" target="_blank" rel="noopener" class="contact-cta">💬 Enviar WhatsApp al 387-5191524</a>
+                `,
+                subtituloLista: 'Centros de Salud habilitados:',
+                items: [
+                    'C.S. 20 de Febrero N° 10',
+                    'C.S. El Manjón N° 6',
+                    'C.S. Castañares N° 15',
+                    'C.S. El Tribuno N° 8',
+                    'C.S. Villa Soledad N° 32',
+                    'C.S. Villa Lavalle N° 9',
+                    'C.S. Solidaridad N° 61',
+                    'C.S. Roberto Nazr N° 63',
+                    'C.S. Villa Primavera N° 1',
+                    'C.S. Atocha N° 26'
+                ],
+                aclaracion: '<strong>Importante:</strong> Para turnos de primera vez se requiere derivación médica.'
+            },
+            'whatsapp-interior': {
+                titulo: 'Turnos por Whatsapp Para pacientes del Interior',
+                destinatario: 'Pacientes del interior de Salta, otras provincias y otros países',
+                destacado: `
+                    <p><strong>Número de WhatsApp exclusivo:</strong> <strong>387-4145225</strong></p>
+                    <p><strong>Cobertura:</strong> Destinado a pacientes del interior de Salta, otras provincias y otros países para todas las especialidades.</p>
+                    <a href="https://wa.me/5493874145225" target="_blank" rel="noopener" class="contact-cta">💬 Enviar WhatsApp al 387-4145225</a>
+                `,
+                subtituloLista: 'Especialidades habilitadas también para pacientes de primera vez:',
+                items: [
+                    'Diabetes',
+                    'Endocrinología',
+                    'Patología Mamaria',
+                    'Nefrología',
+                    'Hepatología',
+                    'Obesidad'
+                ],
+                aclaracion: '<strong>Aclaración:</strong> Además de las especialidades listadas para primera vez, este canal gestiona todas las especialidades del hospital para pacientes no residentes en Salta Capital.'
+            },
+            'requisitos-importantes': {
+                titulo: 'IMPORTANTE — Documentación Requerida',
+                destinatario: 'Requisitos obligatorios para solicitar tu turno',
+                destacado: `
+                    <p>Al momento de comunicarte por WhatsApp o gestionar tu turno, debés tener a mano y enviar de forma legible la siguiente documentación:</p>
+                `,
+                subtituloLista: 'Documentos a presentar / enviar:',
+                items: [
+                    'Enviar foto D.N.I. (ambos lados)',
+                    'Foto carnet obra social (en caso de poseer)',
+                    'Foto de pedido médico'
+                ],
+                aclaracion: '<strong>Consejo:</strong> Asegurate de que las fotografías estén nítidas, con buena iluminación y que se lean claramente todos los datos y firmas.'
+            }
+        };
+
+        function mostrarInfo(clave, botonSeleccionado) {
+            // Actualizar estado activo de los 6 botones
+            document.querySelectorAll('.turno-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.setAttribute('aria-selected', 'false');
+            });
+            botonSeleccionado.classList.add('active');
+            botonSeleccionado.setAttribute('aria-selected', 'true');
+
+            const data = datosTurnos[clave];
+            const contenedor = document.getElementById('panel-contenedor');
+
+            const itemsHTML = data.items.map(item => `<li>${item}</li>`).join('');
+
+            contenedor.classList.remove('visible');
+            // Forzar reflow para reiniciar animación
+            void contenedor.offsetWidth;
+
+            contenedor.innerHTML = `
+                <div class="panel-header">
+                    <h2>${data.titulo}</h2>
+                    <span class="badge-destinatario">${data.destinatario}</span>
+                </div>
+                <div class="highlight-box">
+                    ${data.destacado}
+                </div>
+                <div class="section-label">${data.subtituloLista}</div>
+                <ul class="items-grid">
+                    ${itemsHTML}
+                </ul>
+                <div class="note-box">
+                    ${data.aclaracion}
+                </div>
+            `;
+
+            contenedor.classList.add('visible');
+
+            // En dispositivos móviles, desplazar suavemente hacia el contenido desplegado
+            if (window.innerWidth < 768) {
+                contenedor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        // Inicializar con el primer botón activo al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            const primerBoton = document.querySelector('.turno-btn');
+            mostrarInfo('turnos-148', primerBoton);
+        });
+    </script>
+</body>
+</html>
